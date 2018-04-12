@@ -4,11 +4,22 @@
 *.so
 *.dylib
 
+# Configuration files
+*.conf
+*.json
+
+# SQL statement file
+*.sql
+
 # Test binary, build with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
-.glide/
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/737
+.glide/ 
+
+# output files 
+*.csv
+
