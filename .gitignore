@@ -3,6 +3,8 @@
 *.dll
 *.so
 *.dylib
+*.zip 
+
 
 # Configuration files
 *.conf
@@ -22,4 +24,5 @@
 
 # output files 
 *.csv
+
 

@@ -10,9 +10,23 @@ import (
 	"log"
 	"strings"
 	"os"
+	"time"
+	"io"
+	"fmt"
+	"path/filepath"
+	"net/smtp"
 )
+func main(){
 
-func main() {
+//	gocron.Every(1).Monday().At("15:29").Do(genAndMail)
+//	gocron.Every(5).Minutes().Do(genAndMail)
+
+//	<-gocron.Start()
+	genAndMail()
+}
+
+func genAndMail() {
+
 	db := database.NewConnection()
 	defer db.Close()
 
@@ -22,21 +36,75 @@ func main() {
 
 }
 func sendReports() {
+	mailfrom := os.Getenv("MAILFROM")
+	if mailfrom == "" {
+		panic("MAILFROM not set")
+	}
+	mailto := os.Getenv("MAILTO")
+	if mailto == "" {
+		panic("MAILTO environment variable not set")
+	}
+	server := os.Getenv("MAILSERVER")
+	if server =="" {
+		panic("MAILSERVER environment variable not set")
+	}
 
+
+	c, err := smtp.Dial(server)
+	if err != nil {
+		panic(err)
+	}
+
+	c.Mail(mailfrom)
+	c.Rcpt(mailto)
+
+	data, err := c.Data()
+	if err != nil {
+		panic(err)
+	}
+	defer data.Close()
+
+	boundary := "d835e53b6b161cff115c5aaced91d1407779efa3844811da6eb831b6789b2a9a"
+	defaultFormat := "2006-01-02"
+	t :=time.Now().Format(defaultFormat)
+
+	fmt.Fprintf(data, "Subject: %s %s\n", "GPP Health Indicator reports" , t)
+	fmt.Fprintf(data, "MIME-Version: 1.0\n")
+	fmt.Fprintf(data, "Content-Type: multipart/mixed; boundary=%s\n", boundary)
+
+	fmt.Fprintf(data, "\n--%s\n", boundary)
+	fmt.Fprintf(data, "Content-Type: text/plain; charset=utf-8\n\n")
+	fmt.Fprintf(data, "This email should contain attachments\n\n")
+
+	files, err := ioutil.ReadDir(os.Getenv("REPORT_DIR"))
+	if err != nil {
+		panic("Unable to read directory " + err.Error())
+	}
+
+	for _, file := range files {
+		log.Println("Adding " + file.Name())
+		addAttachment(data, os.Getenv("REPORT_DIR")+"/" + file.Name(), boundary)
+	}
+
+
+	fmt.Fprintf(data, "--%s--\n", boundary)
 }
+
+
+
 func createReports(db *sql.DB) {
 
 	files, err := ioutil.ReadDir(os.Getenv("QUERY_DIR"))
 	if err != nil {
-		log.Println("Unable to read directory " + err.Error())
+		panic("Unable to read directory " + err.Error())
 	}
 	for _, f := range files {
-		log.Println(f.Name())
+		log.Println("Reading " + f.Name())
 		reportName := strings.TrimSuffix(f.Name(), ".sql")
 
 		queryBytes, err := ioutil.ReadFile("queries/" + f.Name())
 		if err != nil {
-			log.Println("Unable to read file  " + f.Name() + err.Error())
+			panic("Unable to read file  " + f.Name() + err.Error())
 		}
 		baseQuery := string(queryBytes)
 
@@ -51,10 +119,28 @@ func createReports(db *sql.DB) {
 			log.Println("Unable to execute query   " + f.Name() + err.Error())
 		}
 
-		errb := sqltocsv.WriteFile(os.Getenv("REPORT_DIR") +"/"+reportName+".csv", rows)
+		errb := sqltocsv.WriteFile(os.Getenv("REPORT_DIR") +"/"+reportName+ ".csv", rows)
 		if errb != nil {
 			panic(err)
 		}
+
+	}
+}
+
+
+
+func addAttachment(w io.Writer, file, boundary string) {
+	fmt.Fprintf(w, "\n--%s\n", boundary)
+	contents, err := os.Open(file)
+	if err != nil {
+		fmt.Fprintf(w, "Content-Type: text/csv; charset=utf-8\n")
+		fmt.Fprintf(w, "could not open file: %v\n", err)
+	} else {
+		defer contents.Close()
+		fmt.Fprintf(w, "Content-Type: text/csv; charset=utf-8\n")
+		fmt.Fprintf(w, "Content-Disposition: attachment; filename=\"%s\"\n\n", filepath.Base(file))
+		io.Copy(w, contents)
+
 
 	}
 }

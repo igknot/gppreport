@@ -4,22 +4,52 @@ import (
 	"os"
 )
 
-func OracleUser() string {
-	return os.Getenv("ORACLE_USER")
+func OracleUser() (user string, err error) {
+	user = os.Getenv("ORACLE_USER")
+	err = nil
+	if user == "" {
+
+		panic("ORACLE_USER Environment variable not set   " )
+	}
+	return
 }
 
-func OraclePort() string {
-	return os.Getenv("ORACLE_PORT")
+func OraclePort() (port string , err error ) {
+	port =  os.Getenv("ORACLE_PORT")
+	err = nil
+	if port == "" {
+		panic("ORACLE_PORT Environment variable not set   " )
+	}
+	return
 }
 
-func OraclePassword() string {
-	return os.Getenv("ORACLE_PASSWORD")
+func OraclePassword() (password string, err error) {
+	password =  os.Getenv("ORACLE_PASSWORD")
+	err = nil
+	if password == "" {
+		panic("ORACLE_PASSWORD Environment variable not set   " )
+
+	}
+	return
 }
 
-func OracleHost() string {
-	return os.Getenv("ORACLE_HOST")
+
+func OracleHost() (password string, err error) {
+	password =  os.Getenv("ORACLE_HOST")
+	err = nil
+	if password == "" {
+		panic("ORACLE_HOST Environment variable not set   " )
+	}
+	return
 }
 
-func OracleService() string {
-	return os.Getenv("ORACLE_SERVICE")
+
+func OracleService() (password string, err error) {
+	password =  os.Getenv("ORACLE_SERVICE")
+	err = nil
+	if password == "" {
+		panic("ORACLE_SERVICE Environment variable not set   " )
+	}
+	return
 }
+
