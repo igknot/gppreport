@@ -21,8 +21,9 @@
 
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/737
 .glide/ 
-.idea/
+
 # output files 
 *.csv
 
 Dockerfile
+.idea
