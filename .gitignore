@@ -10,8 +10,6 @@
 *.conf
 *.json
 
-# SQL statement file
-*.sql
 
 # Test binary, build with `go test -c`
 *.test

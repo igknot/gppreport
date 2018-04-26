@@ -3,26 +3,43 @@ package main
 import (
 	"database/sql"
 
+	"fmt"
 	"github.com/igknot/gppreport/database"
 	"github.com/joho/sqltocsv"
 	_ "github.com/mattn/go-oci8"
+	"io"
 	"io/ioutil"
 	"log"
-	"strings"
-	"os"
-	"time"
-	"io"
-	"fmt"
-	"path/filepath"
+	"net/http"
 	"net/smtp"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
-func main(){
 
-//	gocron.Every(1).Monday().At("15:29").Do(genAndMail)
-//	gocron.Every(5).Minutes().Do(genAndMail)
+func generate(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "GGP PASA reports are being regenerated")
+	log.Println("Endpoint Hit: generate")
+	go genAndMail()
+}
 
-//	<-gocron.Start()
-	genAndMail()
+func handleRequests() {
+	http.HandleFunc("/generate", generate)
+	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("./reports"))))
+	log.Fatal(http.ListenAndServe(":8081", nil))
+}
+
+func main() {
+
+	//	gocron.Every(1).Monday().At("15:29").Do(genAndMail)
+	//	gocron.Every(10).Minutes().Do(genAndMail)
+
+	//	<-gocron.Start()
+
+	handleRequests()
+
+	//	genAndMail()
 }
 
 func genAndMail() {
@@ -45,10 +62,9 @@ func sendReports() {
 		panic("MAILTO environment variable not set")
 	}
 	server := os.Getenv("MAILSERVER")
-	if server =="" {
+	if server == "" {
 		panic("MAILSERVER environment variable not set")
 	}
-
 
 	c, err := smtp.Dial(server)
 	if err != nil {
@@ -66,9 +82,9 @@ func sendReports() {
 
 	boundary := "d835e53b6b161cff115c5aaced91d1407779efa3844811da6eb831b6789b2a9a"
 	defaultFormat := "2006-01-02"
-	t :=time.Now().Format(defaultFormat)
+	t := time.Now().Format(defaultFormat)
 
-	fmt.Fprintf(data, "Subject: %s %s\n", "GPP Health Indicator reports" , t)
+	fmt.Fprintf(data, "Subject: %s %s\n", "GPP Health Indicator reports", t)
 	fmt.Fprintf(data, "MIME-Version: 1.0\n")
 	fmt.Fprintf(data, "Content-Type: multipart/mixed; boundary=%s\n", boundary)
 
@@ -83,23 +99,38 @@ func sendReports() {
 
 	for _, file := range files {
 		log.Println("Adding " + file.Name())
-		addAttachment(data, os.Getenv("REPORT_DIR")+"/" + file.Name(), boundary)
+		addAttachment(data, os.Getenv("REPORT_DIR")+"/"+file.Name(), boundary)
 	}
-
 
 	fmt.Fprintf(data, "--%s--\n", boundary)
 }
 
+func removeOldReports() {
+	rdir := os.Getenv("REPORT_DIR")
+	files, err := ioutil.ReadDir(rdir)
+	if err != nil {
+		panic("Unable to read directory " + err.Error())
+	}
 
+	for _, f := range files {
+		log.Println("Deleting" + rdir + f.Name())
+		if err := os.Remove(rdir + "/" + f.Name()); err != nil {
+			panic(err)
+		}
+	}
+}
 
 func createReports(db *sql.DB) {
 
+	env := os.Getenv("ENVIRONMENT")
 	files, err := ioutil.ReadDir(os.Getenv("QUERY_DIR"))
 	if err != nil {
 		panic("Unable to read directory " + err.Error())
 	}
+	removeOldReports()
+
 	for _, f := range files {
-		log.Println("Reading " + f.Name())
+		log.Println("Start: " + f.Name())
 		reportName := strings.TrimSuffix(f.Name(), ".sql")
 
 		queryBytes, err := ioutil.ReadFile("queries/" + f.Name())
@@ -116,18 +147,20 @@ func createReports(db *sql.DB) {
 		defer rows.Close()
 
 		if err != nil {
-			log.Println("Unable to execute query   " + f.Name() + err.Error())
-		}
-
-		errb := sqltocsv.WriteFile(os.Getenv("REPORT_DIR") +"/"+reportName+ ".csv", rows)
-		if errb != nil {
+			log.Println("Unable to execute query   " + f.Name())
 			panic(err)
 		}
 
+		defaultFormat := "2006-01-02"
+		t := time.Now().Format(defaultFormat)
+
+		errb := sqltocsv.WriteFile(os.Getenv("REPORT_DIR")+"/"+reportName+"_"+env+"_"+t+".csv", rows)
+		if errb != nil {
+			panic(err)
+		}
+		log.Println("End: " + f.Name())
 	}
 }
-
-
 
 func addAttachment(w io.Writer, file, boundary string) {
 	fmt.Fprintf(w, "\n--%s\n", boundary)
@@ -140,7 +173,6 @@ func addAttachment(w io.Writer, file, boundary string) {
 		fmt.Fprintf(w, "Content-Type: text/csv; charset=utf-8\n")
 		fmt.Fprintf(w, "Content-Disposition: attachment; filename=\"%s\"\n\n", filepath.Base(file))
 		io.Copy(w, contents)
-
 
 	}
 }
