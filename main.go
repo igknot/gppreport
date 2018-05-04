@@ -26,7 +26,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 
 func handleRequests() {
 	http.HandleFunc("/generate", generate)
-	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("./reports"))))
+	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("/reports"))))
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
@@ -122,8 +122,11 @@ func removeOldReports() {
 
 func createReports(db *sql.DB) {
 
+
 	env := os.Getenv("ENVIRONMENT")
-	files, err := ioutil.ReadDir(os.Getenv("QUERY_DIR"))
+	query_dir := os.Getenv("QUERY_DIR")
+
+	files, err := ioutil.ReadDir( query_dir)
 	if err != nil {
 		panic("Unable to read directory " + err.Error())
 	}
@@ -133,7 +136,7 @@ func createReports(db *sql.DB) {
 		log.Println("Start: " + f.Name())
 		reportName := strings.TrimSuffix(f.Name(), ".sql")
 
-		queryBytes, err := ioutil.ReadFile("queries/" + f.Name())
+		queryBytes, err := ioutil.ReadFile(query_dir +"/"+ f.Name())
 		if err != nil {
 			panic("Unable to read file  " + f.Name() + err.Error())
 		}
