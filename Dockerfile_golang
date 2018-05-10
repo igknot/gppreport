@@ -1,4 +1,4 @@
-FROM ubuntu
+FROM golang 
 RUN mkdir oreclient_install_dir
 RUN apt-get update 
 RUN apt-get install libaio1 libaio-dev
@@ -7,7 +7,7 @@ ADD database/clientSoftware/instantclient-basic-linux.x64-12.2.0.1.0.zip  /orecl
 ADD database/clientSoftware/instantclient-sdk-linux.x64-12.2.0.1.0.zip /oreclient_install_dir/instantclient-sdk-linux.x64-12.2.0.1.0.zip
 RUN cd /oreclient_install_dir ; unzip /oreclient_install_dir/instantclient-basic-linux.x64-12.2.0.1.0.zip
 RUN cd /oreclient_install_dir ; unzip /oreclient_install_dir/instantclient-sdk-linux.x64-12.2.0.1.0.zip
-RUN mkdir -p /reports ; mkdir -p /queries ; mkdir -p /gppreport
+RUN mkdir -p /reports ; mkdir -p /queries
 
 
 
@@ -30,7 +30,11 @@ RUN ln -s /oreclient_install_dir/instantclient_12_2/libocci.so.12.1 /usr/lib/lib
 RUN ln -s /oreclient_install_dir/instantclient_12_2/libocci.so.12.1 /usr/lib/libocci.so
 
 ADD queries/*.sql /queries/
-
-ADD gppreport /gppreport/gppreport
-#ENTRYPOINT /gppreport/gppreport
+WORKDIR /go/src/gppreport
+COPY . .
+RUN go get -d -v ./...
+ADD database/clientSoftware/oci8_linux.pc /oreclient_install_dir/instantclient_12_2/oci8.pc
+RUN go install -v ./...
+ENTRYPOINT /go/bin//gppreport
 EXPOSE 8081
+RUN touch /reports/nofiles_here_yet.txt

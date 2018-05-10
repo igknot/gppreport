@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/igknot/gppreport/database"
 	"github.com/joho/sqltocsv"
-	_ "github.com/mattn/go-oci8"
+
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	_ "github.com/mattn/go-oci8"
 )
 
 func generate(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +26,7 @@ func generate(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRequests() {
+
 	http.HandleFunc("/generate", generate)
 	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("/reports"))))
 	log.Fatal(http.ListenAndServe(":8081", nil))
