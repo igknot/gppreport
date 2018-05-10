@@ -1,4 +1,4 @@
-FROM golang
+FROM golang:alpine
 RUN mkdir oreclient_install_dir
 RUN apt-get update 
 RUN apt-get install libaio1 libaio-dev

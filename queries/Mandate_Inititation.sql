@@ -98,7 +98,8 @@ FROM
             "ERROR_CODE",
             'BANK' AS "DATA_SOURCE",
             p_mid,
-            p_msg_sts
+            p_msg_sts,
+            p_time_stamp
         FROM
             minf
         WHERE
@@ -129,4 +130,5 @@ FROM
             )
             --AND   p_time_stamp BETWEEN '2018-03-26' AND '2018-04-03'
            
-    ) minf 
+    ) minf where 1 = 1
+

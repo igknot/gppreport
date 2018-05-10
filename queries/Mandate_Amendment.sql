@@ -94,7 +94,8 @@ FROM
                 END
             "ERROR_CODE",
             'BANK' AS "DATA_SOURCE",
-            p_mid
+            p_mid ,
+            p_time_stamp
         FROM
             gpp_sp.minf
         WHERE
@@ -115,4 +116,6 @@ FROM
             )
 
 --and P_TIME_STAMP BETWEEN '2018-03-26' and '2018-04-18' 
-    ) minf --WHERE AUTHENTICATION_TYPE = 'PREAUTH' 
+    ) minf WHERE 1 =1
+
+

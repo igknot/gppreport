@@ -34,7 +34,9 @@ from
             
             p_msg_sts ,
             '' error_code,
-            'BANK' data_source
+            'BANK' data_source,
+            p_time_stamp
+
 FROM
     minf
 WHERE

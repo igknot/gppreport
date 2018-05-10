@@ -43,7 +43,8 @@ FROM
                 END
             status,
             ' ' error_code,
-            'BANK' data_source
+            'BANK' data_source,
+            p_time_stamp
         FROM
             minf
         WHERE
@@ -51,5 +52,5 @@ FROM
             AND   p_cdt_mop = 'BOOK'
             AND   p_dbt_mop = 'AC'
     --AND   p_time_stamp > ( '2018-03-23' )
-    ) minf
+    ) minf where 1 =1
      

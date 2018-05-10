@@ -7,6 +7,8 @@ import (
 	"github.com/igknot/gppreport/database"
 	"github.com/joho/sqltocsv"
 
+	"github.com/jasonlvhit/gocron"
+	_ "github.com/mattn/go-oci8"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,7 +18,6 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
-	_ "github.com/mattn/go-oci8"
 )
 
 func generate(w http.ResponseWriter, r *http.Request) {
@@ -35,13 +36,13 @@ func handleRequests() {
 func main() {
 
 	//	gocron.Every(1).Monday().At("15:29").Do(genAndMail)
-	//	gocron.Every(10).Minutes().Do(genAndMail)
+	gocron.Every(2).Minutes().Do(genAndMail)
 
-	//	<-gocron.Start()
+	<-gocron.Start()
 
-	handleRequests()
+	//handleRequests()
 
-	//	genAndMail()
+	//genAndMail()
 }
 
 func genAndMail() {
@@ -105,6 +106,7 @@ func sendReports() {
 	}
 
 	fmt.Fprintf(data, "--%s--\n", boundary)
+	log.Println("Mail sent to " + mailto)
 }
 
 func removeOldReports() {
@@ -124,11 +126,10 @@ func removeOldReports() {
 
 func createReports(db *sql.DB) {
 
-
 	env := os.Getenv("ENVIRONMENT")
 	query_dir := os.Getenv("QUERY_DIR")
 
-	files, err := ioutil.ReadDir( query_dir)
+	files, err := ioutil.ReadDir(query_dir)
 	if err != nil {
 		panic("Unable to read directory " + err.Error())
 	}
@@ -138,13 +139,18 @@ func createReports(db *sql.DB) {
 		log.Println("Start: " + f.Name())
 		reportName := strings.TrimSuffix(f.Name(), ".sql")
 
-		queryBytes, err := ioutil.ReadFile(query_dir +"/"+ f.Name())
+		queryBytes, err := ioutil.ReadFile(query_dir + "/" + f.Name())
 		if err != nil {
 			panic("Unable to read file  " + f.Name() + err.Error())
 		}
 		baseQuery := string(queryBytes)
+		defaultFormat := "2006-01-02"
+		weekDay := int(time.Now().Weekday())
+		lastFriday := time.Now().AddDate(0, 0, -(weekDay + 2)).Format(defaultFormat)
+		previousFriday := time.Now().AddDate(0, 0, -(weekDay + 9)).Format(defaultFormat)
 
-		query := baseQuery //+ " \n FETCH FIRST 10 rows only "
+		query := baseQuery + "and  p_time_stamp >= ('" + previousFriday + "') and p_time_stamp < ('" + lastFriday + "')"
+		//query := baseQuery //+ " \n FETCH FIRST 10 rows only "
 		//fmt.Println(query)
 
 		rows, err := db.Query(query)
@@ -156,10 +162,7 @@ func createReports(db *sql.DB) {
 			panic(err)
 		}
 
-		defaultFormat := "2006-01-02"
-		t := time.Now().Format(defaultFormat)
-
-		errb := sqltocsv.WriteFile(os.Getenv("REPORT_DIR")+"/"+reportName+"_"+env+"_"+t+".csv", rows)
+		errb := sqltocsv.WriteFile(os.Getenv("REPORT_DIR")+"/"+reportName+"_"+env+"_"+previousFriday+"_to_"+lastFriday+".csv", rows)
 		if errb != nil {
 			panic(err)
 		}

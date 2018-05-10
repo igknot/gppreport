@@ -36,7 +36,8 @@ FROM
                 END
             "STATUS",
             'BANK' AS "DATA_SOURCE",
-            p_mid
+            p_mid ,
+            p_time_stamp
         FROM
             gpp_sp.minf
         WHERE
