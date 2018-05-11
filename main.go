@@ -29,21 +29,23 @@ func generate(w http.ResponseWriter, r *http.Request) {
 func handleRequests() {
  log.Println("Listening")
 	//http.HandleFunc("/generate", generate)
-	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("reports"))))
+	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir(os.Getenv("REPORT_DIR")))))
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 func main() {
 	go handleRequests()
-	//gocron.Every(1).Friday().At("05:00").Do(genAndMail)
-	log.Println("Things go further")
-	gocron.Every(2).Minutes().Do(genAndMail)
+
+	if os.Getenv("TEST") == "YES" {
+		gocron.Every(2).Minutes().Do(genAndMail)
+		log.Println("New report to be created and mailed every 2 minutes ")
+	} else
+	{
+		gocron.Every(1).Friday().At("05:00").Do(genAndMail)
+	}
 
 	<-gocron.Start()
 
-	//handleRequests()
-
-	//genAndMail()
 }
 
 func genAndMail() {

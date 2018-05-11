@@ -1,9 +1,13 @@
 # gppreport
-<<<<<<< HEAD
+
 ####External software
     1.Oracle instantclient-basic-linux 
     2.Oracle instantclient-sdk-linux
-    
+
+####Running local
+
+
+
 ####Docker
 Docker build:
 ```
@@ -17,6 +21,10 @@ ORACLE_HOST=123.456.789.012
 ORACLE_SERVICE=MYSERVICE
 ORACLE_PORT=MYPORT
 ENVIRONMENT=MYENV
+MAILFROM=DO.NOT.REPLY@example.com
+MAILTO=manager@example.com
+MAILSERVER=mail.exmaple.com:25
+TEST=YES/NO  #YES schedule every 2 minutes/NO fixed time 
 ```
 
 run:

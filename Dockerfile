@@ -17,10 +17,7 @@ ENV LD_LIBRARY_PATH "/oreclient_install_dir/instantclient_12_2"
 
 ENV REPORT_DIR "/reports"
 ENV QUERY_DIR "/queries"
-ENV MAILFROM=DO.NOT.REPLY@standardbank.co.za
-ENV MAILTO=philip.louw@standardbank.co.za
-ENV MAILSERVER=mail.standardbank.co.za:25
-ENV ENVIRONMENT=SIT
+
 
 RUN ln -s /oreclient_install_dir/instantclient_12_2/libclntsh.so.12.1 /usr/lib/libclntsh.dylib
 RUN ln -s /oreclient_install_dir/instantclient_12_2/libclntsh.so.12.1 /usr/lib/libclntsh.so
@@ -29,8 +26,8 @@ RUN ln -s /oreclient_install_dir/instantclient_12_2/libocci.so.12.1 /usr/lib/lib
 
 ADD queries/*.sql /queries/
 WORKDIR /go/src/gppreport
-COPY . .
-RUN rm /go/src/gppreport/*.csv
+COPY main.go .
+RUN rm -fr /var/lib/apt/lists/*
 RUN go get -d -v ./...
 RUN rm -fr /go/src/gppreport/database/clientSoftware
 RUN go install -v ./...
