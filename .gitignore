@@ -7,7 +7,7 @@
 
 
 # Configuration files
-*.conf
+env.list
 *.json
 
 
@@ -23,5 +23,7 @@
 # output files 
 *.csv
 
-Dockerfile
+
 .idea
+
+database/clientSoftware/*

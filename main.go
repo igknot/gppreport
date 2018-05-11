@@ -7,7 +7,6 @@ import (
 	"github.com/igknot/gppreport/database"
 	"github.com/joho/sqltocsv"
 
-	"github.com/jasonlvhit/gocron"
 	_ "github.com/mattn/go-oci8"
 	"io"
 	"io/ioutil"
@@ -18,6 +17,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"github.com/jasonlvhit/gocron"
 )
 
 func generate(w http.ResponseWriter, r *http.Request) {
@@ -27,15 +27,16 @@ func generate(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRequests() {
-
-	http.HandleFunc("/generate", generate)
-	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("/reports"))))
+ log.Println("Listening")
+	//http.HandleFunc("/generate", generate)
+	http.Handle("/reports/", http.StripPrefix("/reports/", http.FileServer(http.Dir("reports"))))
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
 
 func main() {
-
-	//	gocron.Every(1).Monday().At("15:29").Do(genAndMail)
+	go handleRequests()
+	//gocron.Every(1).Friday().At("05:00").Do(genAndMail)
+	log.Println("Things go further")
 	gocron.Every(2).Minutes().Do(genAndMail)
 
 	<-gocron.Start()
