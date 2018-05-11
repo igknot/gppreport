@@ -1,4 +1,5 @@
 # gppreport
+<<<<<<< HEAD
 ####External software
     1.Oracle instantclient-basic-linux 
     2.Oracle instantclient-sdk-linux
