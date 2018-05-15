@@ -26,7 +26,8 @@ RUN ln -s /oreclient_install_dir/instantclient_12_2/libocci.so.12.1 /usr/lib/lib
 
 ADD queries/*.sql /queries/
 WORKDIR /go/src/gppreport
-COPY main.go .
+#RUN go get github.com/igknot/gppreport/
+COPY . .
 RUN rm -fr /var/lib/apt/lists/*
 RUN go get -d -v ./...
 RUN rm -fr /go/src/gppreport/database/clientSoftware

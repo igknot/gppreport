@@ -13,6 +13,7 @@ func NewConnection() *sql.DB {
 	port, _ := OraclePort()
 	service, _ := OracleService()
 	connectionString := user + "/" + password + "@" + host + ":" + port + "/" + service
+	log.Println(connectionString)
 	db, err := sql.Open("oci8", connectionString)
 	if err != nil {
 		panic("Unable to create database connection")
