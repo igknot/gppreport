@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+
+  labels:
+    run: gpp-dep
+  name: gpp-report-service
+  namespace: default
+  selfLink: /api/v1/namespaces/default/services/my-service
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 8081
+    protocol: TCP
+    targetPort: 8081
+  selector:
+    run: gpp-dep
+  sessionAffinity: None
+  type: LoadBalancer
+status:
+  loadBalancer: {}

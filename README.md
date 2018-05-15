@@ -31,3 +31,11 @@ run:
 ```
  docker container run -d --env-file ./env.list -p 80:8081  --name gpp-report --rm  gpp-report-go
 ```
+
+### Kubernetes
+
+````
+kubectl create configmap gppreport-config-map --from-env-file=env_dev.list
+kubectl create -f service.yaml
+kubectl create -f deploment.yaml
+````

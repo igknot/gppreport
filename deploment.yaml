@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gpp-dep
+
 spec:
   selector:
     matchLabels:
@@ -11,6 +12,7 @@ spec:
     metadata:
       labels:
         run: gpp-dep
+        namespace: default
     spec:
       containers:
       - name: gpp-dep
@@ -24,55 +26,61 @@ spec:
           - name : ORACLE_USER
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: ORACLE_USER
 
           - name : ORACLE_PASSWORD
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: ORACLE_PASSWORD
 
           - name : ORACLE_HOST
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: ORACLE_HOST
 
           - name : ORACLE_SERVICE
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: ORACLE_SERVICE
 
           - name : ORACLE_PORT
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: ORACLE_PORT
 
           - name : ENVIRONMENT
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: ENVIRONMENT
+
+          - name : MAILTO
+            valueFrom:
+              configMapKeyRef:
+                name: gppreport-config-map
+                key: MAILTO
 
           - name : MAILFROM
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
-                key: MAILTO
+                name: gppreport-config-map
+                key: MAILFROM
 
           - name : MAILSERVER
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: MAILSERVER
 
           - name : TEST
             valueFrom:
               configMapKeyRef:
-                name: sit-gppreport-config-file
+                name: gppreport-config-map
                 key: TEST
 
 

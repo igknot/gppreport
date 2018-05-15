@@ -37,6 +37,7 @@ func main() {
 	go handleRequests()
 
 	if os.Getenv("TEST") == "YES" {
+
 		gocron.Every(2).Minutes().Do(genAndMail)
 		log.Println("New report to be created and mailed every 2 minutes ")
 	} else

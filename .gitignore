@@ -7,7 +7,7 @@
 
 
 # Configuration files
-env.list
+env*.list
 *.json
 
 
