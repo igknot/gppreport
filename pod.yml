@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: gpp-report
+  labels:
+    name: gpp-pod
+spec:
+  containers:
+    - name: gpp-report
+      image: gpp-report:latest
+      imagePullPolicy: IfNotPresent
+
+
+      ports:
+        - Port: 8081
+
+
+      env:
+        - name : ORACLE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: ORACLE_USER
+
+        - name : ORACLE_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: ORACLE_PASSWORD
+
+        - name : ORACLE_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: ORACLE_HOST
+
+        - name : ORACLE_SERVICE
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: ORACLE_SERVICE
+
+        - name : ORACLE_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: ORACLE_PORT
+
+        - name : ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: ENVIRONMENT
+
+        - name : MAILFROM
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: MAILTO
+
+        - name : MAILSERVER
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: MAILSERVER
+
+        - name : TEST
+          valueFrom:
+            configMapKeyRef:
+              name: sit-gppreport-config-file
+              key: TEST
+
+

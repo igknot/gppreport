@@ -19,9 +19,9 @@ func NewConnection() *sql.DB {
 	} else {
 		log.Println("Connection created")
 	}
-	if err = db.Ping(); err != nil {
-		panic("Error connecting to the database: %s\n" + err.Error())
-
-	}
+	//if err = db.Ping(); err != nil {
+	//	panic("Error connecting to the database: %s\n" + err.Error())
+	//
+	//}
 	return db
 }
