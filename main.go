@@ -45,7 +45,7 @@ func main() {
 	}
 
 	<-gocron.Start()
-
+    // add a line 
 }
 
 func genAndMail() {
