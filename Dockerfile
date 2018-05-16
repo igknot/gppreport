@@ -24,13 +24,16 @@ RUN ln -s /oreclient_install_dir/instantclient_12_2/libclntsh.so.12.1 /usr/lib/l
 RUN ln -s /oreclient_install_dir/instantclient_12_2/libocci.so.12.1 /usr/lib/libocci.dylib
 RUN ln -s /oreclient_install_dir/instantclient_12_2/libocci.so.12.1 /usr/lib/libocci.so
 
-ADD queries/*.sql /queries/
-WORKDIR /go/src/gppreport
-#RUN go get github.com/igknot/gppreport/
-COPY . .
+#ADD queries/*.sql /queries/
+WORKDIR /go/src/github.com/igknot/
+
+RUN go get github.com/igknot/gppreport/
+WORKDIR /go/src/github.com/igknot/gppreport
+RUN cp /go/src/github.com/igknot/gppreport/queries/* /queries
+#COPY . .
 RUN rm -fr /var/lib/apt/lists/*
 RUN go get -d -v ./...
-RUN rm -fr /go/src/gppreport/database/clientSoftware
+RUN rm -fr /go/src/gppreport/database/clientSoftware /go/src/github.com/igknot/gppreport/database/clientSoftware
 RUN go install -v ./...
 ENTRYPOINT /go/bin//gppreport
 EXPOSE 8081
